@@ -167,20 +167,25 @@ namespace HunterDamageCalc
             else
                 simulation.Init(buffdata, "SURV");
 
-            var worker = new BackgroundWorker();
+            var worker = new BackgroundWorker {WorkerReportsProgress = true, WorkerSupportsCancellation = true};
+            var progressForm = new Progress((int)numsimsBox.Value);
             worker.DoWork += (_sender, _e) =>
             {
-                (sender as Button).Enabled = false; // Add a reference to this button or something
-                resultsBox.AppendText("Simulating...");
-                _e.Result = simulation.Simulate((int) bosshpBox.Value, (int) numsimsBox.Value);
+                Action action = () =>
+                {
+                    simButton.Enabled = false;
+                    progressForm.ShowDialog(this);
+                };
+                BeginInvoke(action);
+                _e.Result = simulation.Simulate((int) bosshpBox.Value, (int) numsimsBox.Value, worker);
             };
 
             worker.RunWorkerCompleted += (_sender, _e) =>
             {
-                (sender as Button).Enabled = true; // Add a reference to this button or something
+                progressForm.Hide();
+                simButton.Enabled = true;
                 SimulationResults results = (SimulationResults) _e.Result;
-
-                resultsBox.Clear();
+                
                 resultsBox.AppendText("------------------------------------------------------\n");
                 resultsBox.AppendText(numsimsBox.Value.ToString() + " Simulations completed with " +
                                       bosshpBox.Value.ToString() + " Mob health\n");
@@ -203,6 +208,12 @@ namespace HunterDamageCalc
                 resultsBox.AppendText("------------------------------------------------------\n");
             };
             
+            worker.ProgressChanged += (_sender, _e) =>
+            {
+                progressForm.SetProgress(_e.ProgressPercentage);
+                progressForm.SetCurrentSimulations(simulation.CurrentSimulation);
+            };
+
             worker.RunWorkerAsync();
         }
     }
