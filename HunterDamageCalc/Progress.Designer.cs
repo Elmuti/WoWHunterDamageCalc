@@ -28,44 +28,43 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
-            this.label1 = new System.Windows.Forms.Label();
+            this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.progressLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
-            // progressBar1
+            // progressBar
             // 
-            this.progressBar1.Location = new System.Drawing.Point(12, 33);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(348, 23);
-            this.progressBar1.Step = 1;
-            this.progressBar1.TabIndex = 0;
+            this.progressBar.Location = new System.Drawing.Point(14, 38);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(406, 27);
+            this.progressBar.Step = 1;
+            this.progressBar.TabIndex = 0;
             // 
-            // label1
+            // progressLabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(121, 9);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(118, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Running Simulation 1/1";
+            this.progressLabel.AutoSize = true;
+            this.progressLabel.Location = new System.Drawing.Point(141, 10);
+            this.progressLabel.Name = "progressLabel";
+            this.progressLabel.Size = new System.Drawing.Size(132, 15);
+            this.progressLabel.TabIndex = 1;
+            this.progressLabel.Text = "Running Simulation 1/1";
             // 
             // Progress
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(375, 75);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.progressBar1);
+            this.ClientSize = new System.Drawing.Size(437, 87);
+            this.Controls.Add(this.progressLabel);
+            this.Controls.Add(this.progressBar);
             this.Name = "Progress";
             this.Text = "Simulation Progress";
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion
 
-        private System.Windows.Forms.ProgressBar progressBar1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label progressLabel;
+        private System.Windows.Forms.ProgressBar progressBar;
     }
 }

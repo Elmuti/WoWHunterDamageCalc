@@ -167,26 +167,54 @@ namespace HunterDamageCalc
             else
                 simulation.Init(buffdata, "SURV");
 
-            SimulationResults results = simulation.Simulate((int)bosshpBox.Value, (int)numsimsBox.Value);
+            var worker = new BackgroundWorker {WorkerReportsProgress = true, WorkerSupportsCancellation = true};
+            var progressForm = new Progress((int)numsimsBox.Value);
+            worker.DoWork += (_sender, _e) =>
+            {
+                Action action = () =>
+                {
+                    simButton.Enabled = false;
+                    progressForm.ShowDialog(this);
+                };
+                BeginInvoke(action);
+                _e.Result = simulation.Simulate((int) bosshpBox.Value, (int) numsimsBox.Value, worker);
+            };
 
-            resultsBox.AppendText("------------------------------------------------------\n");
-            resultsBox.AppendText(numsimsBox.Value.ToString() + " Simulations completed with " + bosshpBox.Value.ToString() + " Mob health\n");
-            resultsBox.AppendText("\n");
-            resultsBox.AppendText("Character Pane Agility: " + results.PaneAgi + "\n");
-            resultsBox.AppendText("Character Pane AP: " + results.PaneAP + "\n");
-            resultsBox.AppendText("Character Pane Crit: " + Math.Round(results.PaneCrit, 2) + "%\n");
-            resultsBox.AppendText("Character Pane DPS: " + Math.Round(results.PaneDPS,2) + "\n");
-            resultsBox.AppendText("\n");
-            resultsBox.AppendText("Number of Actions: " + results.NumActions + "\n");
-            resultsBox.AppendText("Number of Misses: " + results.NumMisses + "\n");
-            double hitChance = (1.0 - ((double)results.NumMisses / (double)results.NumActions));
-            resultsBox.AppendText("Effective Hit Chance: " + Math.Round(hitChance*100.0, 2) + "%\n");
-            resultsBox.AppendText("Number of Critical strikes: " + results.NumCrits + "\n");
-            resultsBox.AppendText("Effective Critical Strike Chance: " + Math.Round(results.CritPercentage*100.0,2) + "%\n");
-            resultsBox.AppendText("Total Damage: " + Math.Round(results.TotalDamage) + "\n");
-            resultsBox.AppendText("Time Taken: " + results.TimeTaken + "\n");
-            resultsBox.AppendText("DPS: " + Math.Round(results.DPS,2) + "\n");
-            resultsBox.AppendText("------------------------------------------------------\n");
+            worker.RunWorkerCompleted += (_sender, _e) =>
+            {
+                progressForm.Hide();
+                simButton.Enabled = true;
+                SimulationResults results = (SimulationResults) _e.Result;
+                
+                resultsBox.AppendText("------------------------------------------------------\n");
+                resultsBox.AppendText(numsimsBox.Value.ToString() + " Simulations completed with " +
+                                      bosshpBox.Value.ToString() + " Mob health\n");
+                resultsBox.AppendText("\n");
+                resultsBox.AppendText("Character Pane Agility: " + results.PaneAgi + "\n");
+                resultsBox.AppendText("Character Pane AP: " + results.PaneAP + "\n");
+                resultsBox.AppendText("Character Pane Crit: " + Math.Round(results.PaneCrit, 2) + "%\n");
+                resultsBox.AppendText("Character Pane DPS: " + Math.Round(results.PaneDPS, 2) + "\n");
+                resultsBox.AppendText("\n");
+                resultsBox.AppendText("Number of Actions: " + results.NumActions + "\n");
+                resultsBox.AppendText("Number of Misses: " + results.NumMisses + "\n");
+                double hitChance = (1.0 - ((double) results.NumMisses / (double) results.NumActions));
+                resultsBox.AppendText("Effective Hit Chance: " + Math.Round(hitChance * 100.0, 2) + "%\n");
+                resultsBox.AppendText("Number of Critical strikes: " + results.NumCrits + "\n");
+                resultsBox.AppendText("Effective Critical Strike Chance: " +
+                                      Math.Round(results.CritPercentage * 100.0, 2) + "%\n");
+                resultsBox.AppendText("Total Damage: " + Math.Round(results.TotalDamage) + "\n");
+                resultsBox.AppendText("Time Taken: " + results.TimeTaken + "\n");
+                resultsBox.AppendText("DPS: " + Math.Round(results.DPS, 2) + "\n");
+                resultsBox.AppendText("------------------------------------------------------\n");
+            };
+            
+            worker.ProgressChanged += (_sender, _e) =>
+            {
+                progressForm.SetProgress(_e.ProgressPercentage);
+                progressForm.SetCurrentSimulations(simulation.CurrentSimulation);
+            };
+
+            worker.RunWorkerAsync();
         }
     }
 }

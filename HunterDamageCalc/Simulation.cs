@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -110,6 +111,8 @@ namespace HunterDamageCalc
         private bool HawkActive = false;
         private bool FuriousHowlActive = false;
         private bool FuriousHowl = false;
+
+        public int CurrentSimulation { get; private set; }
 
         SimulationResults results = new SimulationResults();
 
@@ -288,15 +291,17 @@ namespace HunterDamageCalc
 
 
 
-        public SimulationResults Simulate(int mobhealth, int simulations)
+        public SimulationResults Simulate(int mobhealth, int simulations, BackgroundWorker worker)
         {
             for (int curSim = 1; curSim <= simulations; curSim++)
             {
+                CurrentSimulation = curSim;
                 MobHealth = mobhealth;
                 while (MobHealth > 0)
                 {
                     DecideAndPerform();
                 }
+                worker.ReportProgress((int)(((double)curSim / (double)simulations) * 100.0));
             }
             results.TimeTaken = CurrentSimulatedTime;
             results.DPS = results.TotalDamage / results.TimeTaken;
